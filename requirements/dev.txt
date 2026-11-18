@@ -1,0 +1,4 @@
+# Face Biometric Research Workbench — Development & Test Requirements (Python 3.11)
+pytest==8.3.4
+iniconfig==2.3.1
+pluggy==1.7.0

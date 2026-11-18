@@ -1,0 +1,168 @@
+# ==============================================================================
+# Face Biometric Research Workbench — Git Ignore Policy
+# Strictly excludes virtual environments, model weights, biometric datasets,
+# genuine/impostor pair files, experiment outputs, screenshots, internal
+# milestone reports, caches, and secrets.
+# ==============================================================================
+
+# 1. Python virtual environments & packaging artifacts
+.venv/
+venv/
+env/
+ENV/
+.conda/
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# 2. Byte-compiled Python, caches, test/linter caches & coverage
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# 3. JavaScript / Node / IDE / OS / Temporary & Log artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.log
+*.tmp
+*.bak
+.tmp*/
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 4. Secrets, credentials & machine-local configuration
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+*secret*
+*credentials*
+configs/*.local.yaml
+configs/*.local.yml
+configs/*.local.json
+configs/local_*.yaml
+# Auto-generated runtime schema snapshot written on server startup
+configs/workbench_registry_schema.json
+
+# 5. Model weights, checkpoints, engines, embeddings & vector indexes
+# (Never upload neural network binaries or extracted biometric templates)
+*.pt
+*.pth
+*.onnx
+*.onnx.data
+*.safetensors
+*.engine
+*.trt
+*.ckpt
+*.pb
+*.tflite
+*.h5
+*.hdf5
+*.bin
+*.npy
+*.npz
+*.faiss
+*.index
+*.ann
+*.pkl
+*.pickle
+*.joblib
+embeddings/
+indexes/
+
+# Keep only directory placeholders and model_manifest.json under models/
+models/**
+!models/
+!models/detection/
+!models/detection/.gitkeep
+!models/detection/research_only/
+!models/detection/research_only/.gitkeep
+!models/recognition/
+!models/recognition/.gitkeep
+!models/recognition/public_resnet50/
+!models/recognition/public_resnet50/.gitkeep
+!models/recognition/research_only/
+!models/recognition/research_only/.gitkeep
+!models/manifests/
+!models/manifests/model_manifest.json
+
+# 6. Datasets, biometric samples, face images & pair/identity manifests
+# (Keep empty directory placeholders ONLY; exclude all images, archives & pair JSON/TXT)
+datasets/**
+!datasets/
+!datasets/samples/
+!datasets/samples/.gitkeep
+!datasets/evaluation/
+!datasets/evaluation/.gitkeep
+!datasets/evaluation/detection_p11/
+!datasets/evaluation/detection_p11/.gitkeep
+!datasets/evaluation/verification_p11/
+!datasets/evaluation/verification_p11/.gitkeep
+!datasets/evaluation/lfw_research_only/
+!datasets/evaluation/lfw_research_only/.gitkeep
+!datasets/manifests/
+!datasets/manifests/.gitkeep
+*.tgz
+*.tar
+*.tar.gz
+*.zip
+*.7z
+
+# 7. Experiment histories, benchmark outputs, UI audit telemetry & screenshots
+reports/**
+!reports/
+!reports/.gitkeep
+**/screenshots/
+
+# 8. Internal milestone reports, manual-testing checklists & non-public docs
+FRONTEND_*.md
+MANUAL_TESTING_*.md
+RESEARCH_WORKBENCH_BASELINE.md
+REPOSITORY_CONFIDENTIALITY_*
+PUBLICATION_REMEDIATION_REPORT.md
+WB1_*
+WB2_*
+WB3_*
+docs/**
+!docs/
+!docs/architecture/
+!docs/architecture/.gitkeep
+!docs/architecture/WORKBENCH_API_CONTRACT.md
+
+# 9. Internal milestone benchmark runners, diagnostic scripts & dataset-coupled tests
+benchmarks/
+scripts/benchmark_environment.py
+scripts/run_wb1_validation.py
+scripts/validate_workbench_e2e.py
+tests/test_config_and_manifest.py
+tests/test_p1_pipeline_integration.py
+tests/test_p1_resnet50_embedder.py
+tests/test_p1_yunet_detector.py
+tests/test_p11_yunet_and_public_resnet50.py
+tests/test_p2_comparative_models.py
+tests/test_wb1_acceptance.py
+tests/test_workbench_api_and_ui.py

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Face Biometric Research Workbench</title>
+  <link rel="stylesheet" href="/styles/workbench.css" />
+</head>
+<body>
+  <div class="wb-app-shell">
+    <!-- Top Scientific Laboratory Header -->
+    <header class="wb-topbar">
+      <div class="wb-brand">
+        <span class="wb-brand-badge">RESEARCH LAB</span>
+        <div>
+          <h1 class="wb-title">Facial Recognition Research Workbench</h1>
+          <div class="wb-subtitle">Algorithmic Inspection, Parameter Ablation &amp; Reproducible Evaluation · Non-Production</div>
+        </div>
+      </div>
+
+      <div class="wb-topbar-telemetry">
+        <div id="wb-active-job-pill" class="wb-pill wb-pill-idle" title="Serialized background experiment worker status">
+          <span class="wb-dot"></span>
+          <span id="wb-job-status-text">Queue Idle</span>
+          <button id="wb-job-cancel-btn" class="wb-btn-inline hidden" type="button">Cancel</button>
+        </div>
+
+        <button id="wb-gpu-pill" class="wb-pill wb-pill-clickable" type="button" title="Click to inspect or release loaded models in the Registry">
+          <span id="wb-gpu-text">GPU / VRAM: Loading…</span>
+        </button>
+
+        <button id="wb-config-delta-btn" class="wb-btn wb-btn-secondary wb-btn-sm" type="button"
+          aria-expanded="false" aria-controls="wb-global-delta-drawer"
+          title="Inspect active parameter deviations from frozen registry defaults across all 5 pipeline stages"
+          data-tip-title="Active Configuration Delta (P-1)"
+          data-tip-body="Shows how Detection, Alignment, Quality, Recognition, and Retrieval parameters differ from frozen registry defaults.">
+          Active Configuration Delta (<span id="wb-config-delta-count">0</span>)
+        </button>
+
+        <button id="wb-release-models-btn" class="wb-btn wb-btn-secondary wb-btn-sm" type="button" title="Unload cached models and flush CUDA cache">
+          Release Models
+        </button>
+
+        <button id="wb-theme-toggle" class="wb-btn wb-btn-secondary wb-btn-sm" type="button" title="Toggle optional dark theme (Light neutral is default)">
+          Theme: Light
+        </button>
+      </div>
+    </header>
+
+    <div class="wb-body">
+      <!-- Persistent 12-Workspace Navigation Rail -->
+      <aside class="wb-sidebar" aria-label="Research Workspaces">
+        <div class="wb-nav-group-label">Overview &amp; Data</div>
+        <button class="wb-nav-item active" data-workspace="dashboard" type="button" title="System status, provenance-tagged reference KPIs, GPU/VRAM cache, and dataset inventory" data-tip-title="01 · Research Dashboard" data-tip-body="Displays live CPU/RAM/GPU telemetry, resident model cache, dataset provenance, and historical reference metrics.">
+          <span class="wb-nav-num">01</span><span>Dashboard</span>
+        </button>
+        <button class="wb-nav-item" data-workspace="image_explorer" type="button" title="Browse permitted datasets, scan local folders, upload session images, and inspect detected face hierarchy" data-tip-title="02 · Image Explorer" data-tip-body="Load permitted datasets or session images and inspect native pixel dimensions, SHA-256, and per-face crops.">
+          <span class="wb-nav-num">02</span><span>Image Explorer</span>
+        </button>
+        <button class="wb-nav-item" data-workspace="datasets" type="button" title="Inspect dataset manifests, SHA-256 digests, identity-disjoint LFW folds, and ground-truth pairs" data-tip-title="10 · Dataset &amp; Eval Explorer" data-tip-body="Inspect licensing, manifest SHA-256, face-size distributions, and identity-disjoint evaluation pairs.">
+          <span class="wb-nav-num">10</span><span>Dataset &amp; Eval Explorer</span>
+        </button>
+
+        <div class="wb-nav-group-label">Stage Laboratories</div>
+        <button class="wb-nav-item" data-workspace="detection_lab" type="button" title="Compare YuNet and SCRFD-500M parameters, GT TP/FP/FN overlays, and resolution/threshold sweeps" data-tip-title="03 · Face Detection Lab" data-tip-body="Compare YuNet and SCRFD-500M across resolution, confidence, NMS, and canvas padding settings.">
+          <span class="wb-nav-num">03</span><span>Face Detection Lab</span>
+        </button>
+        <button class="wb-nav-item" data-workspace="alignment_lab" type="button" title="Compare YuNet vs. SCRFD 5-point landmarks, 4-DoF Umeyama vs. 6-DoF Affine warps, and interpolation" data-tip-title="04 · Landmark &amp; Alignment Lab" data-tip-body="Inspect 5-point landmark displacements, 2×3 transformation matrices, and aligned 112×112 crop differences.">
+          <span class="wb-nav-num">04</span><span>Landmark &amp; Alignment</span>
+        </button>
+        <button class="wb-nav-item" data-workspace="quality_lab" type="button" title="Inspect Laplacian/Tenengrad sharpness, embedding norm ||z_raw||_2, and controlled blur/JPEG degradations" data-tip-title="05 · Face Quality Lab" data-tip-body="Evaluate pixel quality indicators alongside ||z_raw||₂ under synthetic blur, resolution, gamma, and JPEG perturbations.">
+          <span class="wb-nav-num">05</span><span>Face Quality Lab</span>
+        </button>
+        <button class="wb-nav-item" data-workspace="recognition_lab" type="button" title="Run 1:1 verification and 1:N probe identification with zero-reinference threshold adjustment" data-tip-title="06 · Recognition &amp; Matching Lab" data-tip-body="Compare AdaFace, MobileFaceNet, and SFace on 1:1 pairs and 1:N galleries with instant cached threshold updates.">
+          <span class="wb-nav-num">06</span><span>Recognition &amp; Matching</span>
+        </button>
+        <button class="wb-nav-item" data-workspace="retrieval_lab" type="button" title="Benchmark ExactFlat, IVF-Flat, IVF-PQ, and HNSW Recall@K, latency, and memory scaling" data-tip-title="07 · 1:N Retrieval Lab" data-tip-body="Compare ExactFlat, IVF-Flat, IVF-PQ (ADC), and HNSW against Exact-NN ground truth across gallery sizes.">
+          <span class="wb-nav-num">07</span><span>1:N Retrieval Lab</span>
+        </button>
+
+        <div class="wb-nav-group-label">Pipelines &amp; Governance</div>
+        <button class="wb-nav-item" data-workspace="pipeline_builder" type="button" title="Configure, validate, and execute complete 8-stage end-to-end research pipelines" data-tip-title="08 · Pipeline Builder" data-tip-body="Assemble 8-stage detection-to-evaluation pipelines, pre-validate compatibility, and inspect per-stage latency.">
+          <span class="wb-nav-num">08</span><span>Pipeline Builder</span>
+        </button>
+        <button class="wb-nav-item" data-workspace="comparison" type="button" title="Compare runs side by side across 12 scientific charts with cross-dataset protocol warnings" data-tip-title="09 · Algorithm Comparison" data-tip-body="Side-by-side multi-run comparison table and 12 ROC/DET/PR/scaling trade-off charts.">
+          <span class="wb-nav-num">09</span><span>Algorithm Comparison</span>
+        </button>
+        <button class="wb-nav-item" data-workspace="history" type="button" title="Search, filter, export (JSON/CSV/YAML), reload, and reproduce recorded experiments" data-tip-title="11 · Experiment History" data-tip-body="Inspect full SHA-256 provenance, export JSON/CSV/YAML, reload settings, and deterministically reproduce runs.">
+          <span class="wb-nav-num">11</span><span>Experiment History</span>
+        </button>
+        <button class="wb-nav-item" data-workspace="registry" type="button" title="Inspect all 13 registered algorithms, parameter schemas, licenses, and on-demand model loading" data-tip-title="12 · Model &amp; Algo Registry" data-tip-body="Authoritative parameter schemas, model SHA-256 hashes, licensing status, and manual load/unload controls.">
+          <span class="wb-nav-num">12</span><span>Model &amp; Algo Registry</span>
+        </button>
+
+        <div class="wb-sidebar-footer">
+          <div><strong>Active Context Preserved</strong></div>
+          <div id="wb-context-summary" class="wb-muted-xs">Det: yunet_2023mar · Rec: adaface_ir50</div>
+        </div>
+      </aside>
+
+      <!-- Main Workspace Container -->
+      <main id="wb-main-viewport" class="wb-main" tabindex="-1">
+        <div class="wb-loading-banner">Initializing Research Workbench &amp; Connecting to Python Backend…</div>
+      </main>
+    </div>
+
+    <!-- Global Collapsible Active Configuration Delta Drawer (P-1) -->
+    <section id="wb-global-delta-drawer" class="wb-global-delta-drawer hidden" aria-label="Active Configuration Delta Drawer"></section>
+
+    <!-- Structured Alert / Error Toast Container -->
+    <div id="wb-toast-container" class="wb-toast-container" aria-live="polite"></div>
+
+    <!-- Non-Clipped Viewport-Clamped Scientific Tooltip Portal -->
+    <div id="wb-tooltip-portal" class="wb-tooltip-portal hidden" role="tooltip" aria-live="polite"></div>
+  </div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+# Face Biometric Research Workbench — Benchmark Configuration (Milestones P0 & P1)
+
+# Preserved Milestone P0 synthetic environment smoke benchmark settings
+benchmark:
+  name: "p0_environment_smoke_benchmark"
+  synthetic_data_only: true
+  seed: 42
+
+  iterations:
+    warmup: 35
+    measurement: 120
+
+  batch_sizes:
+    - 1
+    - 4
+    - 8
+
+  execution:
+    enable_cpu: true
+    enable_gpu: true
+    require_actual_device_execution: true
+    cpu_intra_op_threads: 4
+    cpu_inter_op_threads: 1
+
+  precision:
+    default: "fp32"
+    supported:
+      - "fp32"
+      - "fp16"
+
+  synthetic_workloads:
+    pytorch_matmul_shape: [512, 512]
+    pytorch_conv_input_shape: [3, 112, 112]
+    onnx_input_shape: [3, 112, 112]
+    onnx_embedding_dim: 128
+
+  reporting:
+    output_json: "reports/environment_benchmark_results.json"
+    output_markdown: "reports/environment_benchmark_report.md"
+    percentiles: [50, 95, 99]
+
+# Milestone P1 real-image & model baseline benchmark settings
+p1_benchmarks:
+  seed: 42
+
+  yunet:
+    model_key: "yunet_2023mar"
+    dataset_manifest: "datasets/manifests/dataset_manifest.json"
+    ground_truth_manifest: "datasets/manifests/detection_ground_truth.json"
+    iou_match_threshold: 0.50
+    warmup_iterations: 15
+    measurement_iterations: 40
+    resolutions:
+      - [320, 240]
+      - [640, 480]
+      - [1280, 720]
+      - [1920, 1080]
+    output_json: "reports/p1_yunet_benchmark_results.json"
+    output_markdown: "reports/p1_yunet_benchmark_report.md"
+
+  resnet50:
+    model_key: "reference_resnet50_baseline"
+    warmup_iterations: 20
+    measurement_iterations: 60
+    batch_sizes: [1, 4, 8, 16]
+    configurations:
+      - { device: "cpu", precision: "fp32" }
+      - { device: "cuda", precision: "fp32" }
+      - { device: "cuda", precision: "fp16" }
+    output_json: "reports/p1_resnet50_benchmark_results.json"
+    output_markdown: "reports/p1_resnet50_benchmark_report.md"
+
+  pipeline:
+    models_config: "configs/models.yaml"
+    dataset_manifest: "datasets/manifests/dataset_manifest.json"
+    warmup_passes: 5
+    measurement_passes: 15
+    output_json: "reports/p1_pipeline_benchmark_results.json"
+    output_markdown: "reports/p1_pipeline_benchmark_report.md"
+
+# Milestone P1.1 — YuNet Resize Optimization + Public Pretrained ResNet50 (AdaFace IR-50) Benchmarks
+p11_benchmarks:
+  seed: 42
+
+  yunet:
+    model_key: "yunet_2023mar"
+    p1_ground_truth_manifest: "datasets/manifests/detection_ground_truth.json"
+    extended_ground_truth_manifest: "datasets/manifests/p11_detection_small_face_gt.json"
+    iou_match_threshold: 0.50
+    warmup_iterations: 10
+    measurement_iterations: 30
+    resize_max_dims: [null, 1280, 960, 640, 480]
+    output_json: "reports/p11_yunet_benchmark_results.json"
+    output_markdown: "reports/p11_yunet_benchmark_report.md"
+
+  resnet50:
+    model_key: "adaface_ir50_webface4m"
+    verification_manifest: "datasets/manifests/p11_verification_pairs.json"
+    warmup_iterations: 20
+    measurement_iterations: 60
+    batch_sizes: [1, 4, 8, 16]
+    configurations:
+      - { runtime: "pytorch", device: "cpu", precision: "fp32" }
+      - { runtime: "pytorch", device: "cuda", precision: "fp32" }
+      - { runtime: "pytorch", device: "cuda", precision: "fp16" }
+      - { runtime: "onnxruntime", device: "cpu", precision: "fp32" }
+      - { runtime: "onnxruntime", device: "cuda", precision: "fp32" }
+      - { runtime: "onnxruntime", device: "cuda", precision: "fp16" }
+    far_targets: [0.001, 0.01, 0.05, 0.10]
+    output_json: "reports/p11_resnet50_benchmark_results.json"
+    output_markdown: "reports/p11_resnet50_benchmark_report.md"
+
+  pipeline:
+    models_config: "configs/models.yaml"
+    p1_baseline_json: "reports/p1_pipeline_benchmark_results.json"
+    ground_truth_manifest: "datasets/manifests/detection_ground_truth.json"
+    extended_ground_truth_manifest: "datasets/manifests/p11_detection_small_face_gt.json"
+    warmup_passes: 5
+    measurement_passes: 15
+    output_json: "reports/p11_pipeline_benchmark_results.json"
+    output_markdown: "reports/p11_pipeline_benchmark_report.md"

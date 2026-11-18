@@ -1,0 +1,80 @@
+# Face Biometric Research Workbench — Milestone P3 Algorithmic Research Configuration
+# Separate from frozen P1/P1.1 (`configs/models.yaml`) and P2 (`configs/p2_models.yaml`).
+
+milestone: "P3"
+mode: "algorithmic_research_and_experimental_evaluation"
+seed: 42
+
+provenance_governance:
+  internal_reference_checkpoint_dependency: "RETIRED"
+  commercial_licensing_blocking: false
+  research_weights_allowed_for_experimentation: true
+  frozen_baselines_read_only:
+    - "configs/models.yaml"
+    - "configs/benchmark.yaml"
+    - "configs/p2_models.yaml"
+    - "configs/p2_benchmark.yaml"
+
+evaluation_partitions:
+  detection_regression_split:
+    manifest: "datasets/manifests/p11_detection_small_face_gt.json"
+    num_images: 9
+    num_gt_faces: 86
+    known_limitation: "Partially YuNet-seeded (55 direct 0.1px-rounded YuNet + 16 refined + 15 human integer boxes)"
+  lfw_identity_disjoint_protocol:
+    pairs_file: "datasets/evaluation/lfw_research_only/pairs.txt"
+    image_root: "datasets/evaluation/lfw_research_only/lfw_funneled"
+    calibration_folds: [0, 1, 2, 3, 4]   # Folds 1-5: 3,000 pairs (1,500 genuine, 1,500 impostor)
+    test_folds: [5, 6, 7, 8, 9]          # Folds 6-10: 3,000 pairs (0 shared identities with calibration!)
+    target_calibration_fars: [0.001, 0.01, 0.05]
+
+experiments:
+  exp_p3_01_detection_sensitivity:
+    resolutions: [320, 640, 960, 1280, 1600]
+    score_thresholds: [0.30, 0.45, 0.50, 0.60, 0.75, 0.85]
+    nms_thresholds: [0.20, 0.30, 0.40, 0.55, 0.70]
+    soft_nms_sigmas: [0.30, 0.50]
+    warmup_passes: 3
+    measured_passes: 10
+
+  exp_p3_02_alignment_and_detector_coupling:
+    detector_sources: ["yunet_1280", "scrfd_tight_stride32"]
+    transform_modes: ["similarity_umeyama_4dof", "affine_least_squares_6dof", "similarity_zoom_out_10pct"]
+    interpolations: ["nearest", "linear", "cubic", "lanczos4"]
+
+  exp_p3_03_alignment_perturbations:
+    landmark_jitter_sigmas_px: [0.0, 1.0, 2.0, 4.0, 8.0]
+    roll_rotation_deg: [0.0, 5.0, 10.0, 20.0]
+
+  exp_p3_04_photometric_degradations:
+    gaussian_blur_sigmas: [0.0, 1.0, 2.0, 3.5]
+    effective_resolutions_px: [112, 56, 28, 16]
+    illumination_gammas: [0.4, 1.0, 2.2, 3.5]
+    jpeg_qualities: [95, 50, 20, 10]
+
+  exp_p3_05_quality_and_aggregation:
+    reject_fractions: [0.0, 0.05, 0.10, 0.20]
+    min_images_for_template_subject: 3
+
+  exp_p3_06_matching_and_tta:
+    metrics: ["cosine", "normalized_l2", "unnormalized_l2", "normalized_l1"]
+    enable_horizontal_flip_tta: true
+
+  exp_p3_07_batch_and_precision:
+    batch_sizes: [1, 2, 4, 8, 16, 32]
+    warmup_passes: 5
+    measured_passes: 15
+
+  exp_p3_08_large_scale_retrieval:
+    gallery_sizes_flat_ivf_pq: [13233, 50000, 100000]
+    gallery_size_hnsw: 10000
+    num_queries: 500
+    batch_query_size: 64
+    top_k_values: [1, 5, 10]
+    ivf_nlist: 256
+    ivf_nprobes: [1, 4, 8, 16, 32]
+    pq_subspaces_m: 32
+    pq_centroids_k: 256
+    hnsw_m: 16
+    hnsw_ef_construction: 100
+    hnsw_ef_search_list: [16, 32, 64, 128]
